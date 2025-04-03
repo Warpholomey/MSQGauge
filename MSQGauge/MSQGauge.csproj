@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+	</PropertyGroup>
+	<PropertyGroup>
+		<DalamudDirectory>$(APPDATA)\XIVLauncher\Addon\Hooks\Dev\</DalamudDirectory>
+	</PropertyGroup>
+	<PropertyGroup>
+		<AssemblySearchPaths>
+			$(AssemblySearchPaths);
+			$(DalamudDirectory);
+		</AssemblySearchPaths>
+	</PropertyGroup>
+	<ItemGroup>
+		<Reference Include="Dalamud">
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="ImGui.NET">
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="Lumina">
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="Lumina.Excel">
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="FFXIVClientStructs">
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="InteropGenerator.Runtime">
+			<Private>False</Private>
+		</Reference>
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="DalamudPackager" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\ECommons\ECommons\ECommons.csproj" />
+	</ItemGroup>
+</Project>

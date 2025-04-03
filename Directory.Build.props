@@ -1,0 +1,13 @@
+<Project>
+	<PropertyGroup>
+		<Title>MSQGauge</Title>
+		<Authors>Warpholomey</Authors>
+		<Version>1.0.0.0</Version>
+		<RootNamespace>MSQGauge</RootNamespace>
+		<TargetFramework>net9.0-windows</TargetFramework>
+		<Platforms>x64</Platforms>
+		<ImplicitUsings>disable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<LangVersion>latest</LangVersion>
+	</PropertyGroup>
+</Project>
