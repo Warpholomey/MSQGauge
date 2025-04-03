@@ -1,9 +1,9 @@
 {
 	"Author": "Warpholomey",
 	"Name": "MSQGauge",
-	"Punchline": "",
+	"Punchline": "MSQ gauge, by the way.",
 	"RepoUrl": "https://github.com/Warpholomey/MSQGauge/",
-	"Description": "",
+	"Description": "Adds a new gauge (which behaves like other gauges), which shows the progress of the MSQ.",
 	"InternalName": "MSQGauge",
 	"ApplicableVersion": "any",
 	"Tags": []

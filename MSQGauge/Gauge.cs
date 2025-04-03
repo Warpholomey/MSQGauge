@@ -4,6 +4,8 @@ using Dalamud.Plugin.Services;
 
 using ECommons.ImGuiMethods;
 
+using FFXIVClientStructs.FFXIV.Component.GUI;
+
 using ImGuiNET;
 
 using System;
@@ -36,7 +38,26 @@ public sealed class Gauge : Window
 
 	public sealed override unsafe bool DrawConditions()
 	{
-		return _clientState.LocalPlayer != null;
+		return _clientState.LocalPlayer != null && IsActionBarsVisible();
+	}
+
+	private static unsafe bool IsActionBarsVisible()
+	{
+		var stage = AtkStage.Instance();
+
+		var loadedUnitsList = &stage->RaptureAtkUnitManager->AtkUnitManager.AllLoadedUnitsList;
+
+		for (var i = 0; i <= Math.Min(loadedUnitsList->Entries.Length, loadedUnitsList->Count); i++)
+		{
+			var addon = loadedUnitsList->Entries[i].Value;
+
+			if (addon !=  null && addon->IsVisible && addon->NameString == "_ActionBar")
+			{
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	public override void Draw()
@@ -58,7 +79,7 @@ public sealed class Gauge : Window
 		{
 			ImGui.SameLine();
 
-			TryDrawImage($"Images/{(i < currentExpansion || currentExpansion == Expansion.DAWNTRAIL && currentProgress == 1 ? i : "NONE")}.png");
+			TryDrawImage($"Images/{(i <= currentExpansion ? i : "NONE")}.png");
 		}
 
 		ImGui.ProgressBar(currentProgress, new Vector2(214, 20));
