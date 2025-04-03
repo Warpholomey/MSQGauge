@@ -1,3 +1,4 @@
+using Dalamud.Game.Command;
 using Dalamud.Interface.Windowing;
 using Dalamud.IoC;
 using Dalamud.Plugin;
@@ -17,6 +18,8 @@ namespace MSQGauge;
 
 public sealed class Plugin : IDalamudPlugin
 {
+	private const string ToggleCommand = "/lockmsqgauge";
+
 	private readonly Dictionary<Expansion, ushort> _expansionBegins;
 	private readonly Dictionary<Expansion, ushort> _expansionEnds;
 	private readonly Gauge _gauge;
@@ -30,26 +33,56 @@ public sealed class Plugin : IDalamudPlugin
 	[PluginService]
 	public static IClientState ClientState { get; private set; } = null!;
 
-	public WindowSystem WindowSystem { get; } = new();
+	[PluginService]
+	public static IDalamudPluginInterface DalamudPluginInterface { get; private set; } = null!;
 
-	public unsafe Plugin(IDalamudPluginInterface dalamudPluginInterface)
+	[PluginService]
+	public static ICommandManager CommandManager { get; private set; } = null!;
+
+	private readonly WindowSystem _windowSystem = new();
+	private readonly Configuration _configuration;
+
+	public unsafe Plugin()
 	{
 		(_expansionBegins, _expansionEnds) = CalculateExpansions();
 
-		_gauge = new(GetCurrentExpansion, GetCurrentExpansionProgress, ClientState);
+		_configuration = (Configuration?) DalamudPluginInterface.GetPluginConfig() ?? new Configuration();
 
-		WindowSystem.AddWindow(_gauge);
+		_gauge = new(
+			GetCurrentExpansion,
+			GetCurrentExpansionProgress,
+			ClientState,
+			DalamudPluginInterface,
+			_configuration);
 
-		ECommonsMain.Init(dalamudPluginInterface, this);
+		_windowSystem.AddWindow(_gauge);
 
-		Svc.PluginInterface.UiBuilder.Draw += WindowSystem.Draw;
+		ECommonsMain.Init(DalamudPluginInterface, this);
+
+		Svc.PluginInterface.UiBuilder.Draw += _windowSystem.Draw;
+
+		CommandManager.AddHandler(
+			ToggleCommand,
+			new CommandInfo((command, args) => ToggleGaugeLock())
+			{
+				HelpMessage = "Toggle gauge's locking.",
+			});
 	}
 
 	public void Dispose()
 	{
-		Svc.PluginInterface.UiBuilder.Draw -= WindowSystem.Draw;
+		CommandManager.RemoveHandler(ToggleCommand);
+
+		Svc.PluginInterface.UiBuilder.Draw -= _windowSystem.Draw;
 
 		ECommonsMain.Dispose();
+	}
+
+	private void ToggleGaugeLock()
+	{
+		_configuration.IsGaugeLocked = !_configuration.IsGaugeLocked;
+
+		DalamudPluginInterface.SavePluginConfig(_configuration);
 	}
 
 	private unsafe ScenarioTree? GetCurrentScenarioTreeEntry()
