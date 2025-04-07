@@ -14,7 +14,7 @@ using System.Numerics;
 
 namespace MSQGauge;
 
-public sealed class Gauge : Window
+public sealed class GaugeWindow : Window
 {
 	private readonly IClientState _clientState;
 	private readonly IDalamudPluginInterface _pluginInterface;
@@ -22,7 +22,7 @@ public sealed class Gauge : Window
 	private readonly Func<float> _progressProvider;
 	private readonly Func<Expansion> _expansionProvider;
 	
-	public Gauge(Func<Expansion> expansionProvider, Func<float> progressProvider, IClientState clientState, IDalamudPluginInterface pluginInterface, Configuration configuration) : base("MSQ", ImGuiWindowFlags.NoDecoration | ImGuiWindowFlags.NoBackground)
+	public GaugeWindow(Func<Expansion> expansionProvider, Func<float> progressProvider, IClientState clientState, IDalamudPluginInterface pluginInterface, Configuration configuration) : base("MSQ", ImGuiWindowFlags.NoDecoration | ImGuiWindowFlags.NoBackground)
 	{
 		IsOpen = true;
 		RespectCloseHotkey = false;
@@ -33,7 +33,7 @@ public sealed class Gauge : Window
 		_progressProvider = progressProvider;
 		_expansionProvider = expansionProvider;
 
-		Size = new Vector2(240, 90);
+		Size = new Vector2(240, 180);
 	}
 
 	public sealed override unsafe bool DrawConditions()
@@ -71,18 +71,79 @@ public sealed class Gauge : Window
 			Flags &= ~ImGuiWindowFlags.NoInputs;
 		}
 
-		var currentExpansion = _expansionProvider();
+		TryDrawBackground(
+			_configuration.GaugeBackground switch
+			{
+				GaugeBackground.Grayscale => "Images/Gauge_Grayscale.png",
+				GaugeBackground.ARR => "Images/Gauge_ARR.png",
+				_ => null,
+			});
 
+		ImGui.Dummy(new Vector2(0, 90));
+
+		DrawExpansionIcons();
+
+		ImGui.Dummy(new Vector2(0, 10));
+
+		DrawProgressBar();
+	}
+
+	private void DrawProgressBar()
+	{
 		var currentProgress = _progressProvider();
+
+		ImGui.SetCursorPosX(15);
+
+		ImGui.PushStyleColor(ImGuiCol.FrameBg, ImGuiEx.Vector4FromRGB(0x111111));
+
+		ImGui.PushStyleColor(ImGuiCol.PlotHistogram, ImGuiEx.Vector4FromRGB(0x111199));
+
+		ImGui.ProgressBar(currentProgress, new Vector2(210, 20));
+
+		ImGui.PopStyleColor();
+
+		ImGui.PopStyleColor();
+	}
+
+	private void DrawExpansionIcons()
+	{
+		var currentExpansion = _expansionProvider();
 
 		for (var i = Expansion.ARR; i <= Expansion.DAWNTRAIL; i++)
 		{
+			if (i == 0)
+			{
+				ImGui.Dummy(new Vector2(5, 0));
+			}
+
 			ImGui.SameLine();
 
 			TryDrawImage($"Images/{(i <= currentExpansion ? i : "NONE")}.png");
 		}
+	}
 
-		ImGui.ProgressBar(currentProgress, new Vector2(214, 20));
+	private void TryDrawBackground(string? img)
+	{
+		if (img is null)
+		{
+			return;
+		}
+
+		var url = Path.Combine(_pluginInterface.AssemblyLocation.DirectoryName!, img);
+
+		if (ThreadLoadImageHandler.TryGetTextureWrap(url, out var dalamudTextureWrap))
+		{
+			var windowPos = ImGui.GetWindowPos();
+
+			ImGui
+				.GetBackgroundDrawList()
+				.AddImage(
+					dalamudTextureWrap.ImGuiHandle,
+					windowPos,
+					windowPos + new Vector2(
+						dalamudTextureWrap.Width,
+						dalamudTextureWrap.Height));
+		}
 	}
 
 	private void TryDrawImage(string img)

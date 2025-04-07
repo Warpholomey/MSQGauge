@@ -24,6 +24,12 @@
 		<Content Include="Images\ENDWALKER.png">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
+		<Content Include="Images\Gauge_ARR.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Images\Gauge_Grayscale.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
 		<Content Include="Images\HEAVENSWARD.png">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>

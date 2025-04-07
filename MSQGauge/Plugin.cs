@@ -19,10 +19,12 @@ namespace MSQGauge;
 public sealed class Plugin : IDalamudPlugin
 {
 	private const string ToggleCommand = "/lockmsqgauge";
+	private const string SettingsCommand = "/msqgauge";
 
 	private readonly Dictionary<Expansion, ushort> _expansionBegins;
 	private readonly Dictionary<Expansion, ushort> _expansionEnds;
-	private readonly Gauge _gauge;
+	private readonly GaugeWindow _gaugeWindow;
+	private readonly SettingsWindow _settingsWindow;
 
 	[PluginService]
 	public static IDataManager DataManager { get; private set; } = null!;
@@ -48,24 +50,38 @@ public sealed class Plugin : IDalamudPlugin
 
 		_configuration = (Configuration?) DalamudPluginInterface.GetPluginConfig() ?? new Configuration();
 
-		_gauge = new(
+		_gaugeWindow = new(
 			GetCurrentExpansion,
 			GetCurrentExpansionProgress,
 			ClientState,
 			DalamudPluginInterface,
 			_configuration);
 
-		_windowSystem.AddWindow(_gauge);
+		_settingsWindow = new(
+			DalamudPluginInterface,
+			_configuration);
+
+		_windowSystem.AddWindow(_gaugeWindow);
+		_windowSystem.AddWindow(_settingsWindow);
 
 		ECommonsMain.Init(DalamudPluginInterface, this);
 
 		Svc.PluginInterface.UiBuilder.Draw += _windowSystem.Draw;
+		Svc.PluginInterface.UiBuilder.OpenMainUi += OpenSettingsWindow;
+		Svc.PluginInterface.UiBuilder.OpenConfigUi += OpenSettingsWindow;
 
 		CommandManager.AddHandler(
 			ToggleCommand,
 			new CommandInfo((command, args) => ToggleGaugeLock())
 			{
 				HelpMessage = "Toggle gauge's locking.",
+			});
+
+		CommandManager.AddHandler(
+			SettingsCommand,
+			new CommandInfo((command, args) => OpenSettingsWindow())
+			{
+				HelpMessage = "Open gauge's settings.",
 			});
 	}
 
@@ -76,6 +92,11 @@ public sealed class Plugin : IDalamudPlugin
 		Svc.PluginInterface.UiBuilder.Draw -= _windowSystem.Draw;
 
 		ECommonsMain.Dispose();
+	}
+
+	private void OpenSettingsWindow()
+	{
+		_settingsWindow.IsOpen = true;
 	}
 
 	private void ToggleGaugeLock()
