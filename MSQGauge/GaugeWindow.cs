@@ -1,3 +1,4 @@
+using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
@@ -5,8 +6,6 @@ using Dalamud.Plugin.Services;
 using ECommons.ImGuiMethods;
 
 using FFXIVClientStructs.FFXIV.Component.GUI;
-
-using ImGuiNET;
 
 using System;
 using System.IO;
@@ -138,7 +137,7 @@ public sealed class GaugeWindow : Window
 			ImGui
 				.GetBackgroundDrawList()
 				.AddImage(
-					dalamudTextureWrap.ImGuiHandle,
+					dalamudTextureWrap.Handle,
 					windowPos,
 					windowPos + new Vector2(
 						dalamudTextureWrap.Width,
@@ -153,7 +152,7 @@ public sealed class GaugeWindow : Window
 		if (ThreadLoadImageHandler.TryGetTextureWrap(url, out var dalamudTextureWrap))
 		{
 			ImGui.Image(
-				dalamudTextureWrap.ImGuiHandle,
+				dalamudTextureWrap.Handle,
 				new Vector2(
 					dalamudTextureWrap.Width,
 					dalamudTextureWrap.Height));
