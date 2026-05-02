@@ -115,11 +115,11 @@ public sealed class Plugin : IDalamudPlugin
 			return null;
 		}
 
-		var index = agentScenarioTree->Data->CompleteScenarioQuest;
+		var index = agentScenarioTree->Data->MainScenarioQuestIds[3];
 
 		if (index == 0)
 		{
-			index = agentScenarioTree->Data->CurrentScenarioQuest;
+			index = agentScenarioTree->Data->MainScenarioQuestIds[0];
 		}
 
 		return index == 0 ? null : DataManager.GetExcelSheet<ScenarioTree>().GetRow(index | 0x10000U);

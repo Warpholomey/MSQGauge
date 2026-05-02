@@ -35,9 +35,9 @@ public sealed class GaugeWindow : Window
 		Size = new Vector2(240, 180);
 	}
 
-	public sealed override unsafe bool DrawConditions()
+	public sealed override bool DrawConditions()
 	{
-		return _clientState.LocalPlayer != null && IsActionBarsVisible();
+		return _clientState.IsLoggedIn && IsActionBarsVisible();
 	}
 
 	private static unsafe bool IsActionBarsVisible()
